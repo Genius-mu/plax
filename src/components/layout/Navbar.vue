@@ -1,5 +1,5 @@
 <template>
-  <header class="h-16 border-b border-white/10 bg-black/80 backdrop-blur-2xl sticky top-0 z-20 px-6 flex items-center justify-between">
+  <header class="glass-panel border border-white/18 sticky top-3.5 mt-3.5 mb-2.5 mx-auto w-full h-14 z-20 px-5 flex items-center justify-between rounded-2xl shadow-xl">
     <!-- Breadcrumb / Title -->
     <div class="flex items-center gap-3">
       <h2 class="text-base font-semibold text-white flex items-center gap-2 font-heading">
@@ -26,9 +26,9 @@
       </div>
 
       <!-- Quick Role Info -->
-      <div class="hidden md:flex items-center gap-2 text-xs text-slate-300 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-2xl font-normal">
-        <Shield class="w-3.5 h-3.5 text-blue-400" />
-        <span>Org: <strong class="text-white font-medium">Plax Global Compliance</strong></span>
+      <div class="hidden md:flex items-center gap-2 text-xs text-slate-300 bg-white/10 border border-white/15 px-3.5 py-1.5 rounded-2xl font-normal shadow-sm">
+        <Shield class="w-3.5 h-3.5 text-cyan-400" />
+        <span>Org: <strong class="text-white font-semibold">Plax Global Compliance</strong></span>
       </div>
     </div>
   </header>

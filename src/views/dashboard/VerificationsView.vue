@@ -1,6 +1,6 @@
 <template>
   <DashboardLayout>
-    <div class="space-y-6">
+    <div class="space-y-3.5">
       <!-- Top Action & Filter Bar -->
       <GlassSurface :borderRadius="24" className="p-5">
         <div class="w-full flex flex-col md:flex-row md:items-center justify-between gap-4">

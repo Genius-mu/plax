@@ -1,6 +1,6 @@
 <template>
   <DashboardLayout>
-    <div class="space-y-6">
+    <div class="space-y-3.5">
       <div class="glass-panel p-5 rounded-3xl border border-white/90 flex items-center justify-between shadow-sm">
         <div>
           <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 font-heading">

@@ -1,8 +1,8 @@
 <template>
   <DashboardLayout>
-    <div class="space-y-6">
+    <div class="space-y-3.5">
       <!-- Metric Cards Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <!-- Total Verifications Card -->
         <GlassSurface :borderRadius="24" className="p-6 transition-all hover:-translate-y-1">
           <div class="w-full">
