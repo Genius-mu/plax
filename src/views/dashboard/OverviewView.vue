@@ -12,7 +12,7 @@
             </div>
           </div>
           <div class="mt-4 flex items-baseline gap-2">
-            <span class="text-3xl font-black text-white font-mono tracking-tight">{{ store.stats?.total || 0 }}</span>
+            <span class="text-3xl font-black text-white font-mono tracking-tight font-heading">{{ store.stats?.total || 0 }}</span>
             <span class="text-xs font-bold text-emerald-400 flex items-center gap-0.5 bg-emerald-500/20 px-2 py-0.5 rounded-lg border border-emerald-500/30">
               <TrendingUp class="w-3.5 h-3.5" /> +12.4%
             </span>
@@ -29,7 +29,7 @@
             </div>
           </div>
           <div class="mt-4 flex items-baseline gap-2">
-            <span class="text-3xl font-black text-emerald-400 font-mono tracking-tight">{{ store.stats?.approved || 0 }}</span>
+            <span class="text-3xl font-black text-emerald-400 font-mono tracking-tight font-heading">{{ store.stats?.approved || 0 }}</span>
             <span class="text-xs font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-lg border border-emerald-500/40">
               {{ store.stats?.approvalRate || 100 }}% Pass Rate
             </span>
@@ -46,7 +46,7 @@
             </div>
           </div>
           <div class="mt-4 flex items-baseline gap-2">
-            <span class="text-3xl font-black text-purple-300 font-mono tracking-tight">{{ store.stats?.manualReview || 0 }}</span>
+            <span class="text-3xl font-black text-purple-300 font-mono tracking-tight font-heading">{{ store.stats?.manualReview || 0 }}</span>
             <span class="text-xs font-bold text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-lg border border-purple-500/40">Action Required</span>
           </div>
           <p class="text-[11px] text-slate-400 font-medium mt-1.5">Medium risk flagged cases</p>
@@ -61,7 +61,7 @@
             </div>
           </div>
           <div class="mt-4 flex items-baseline gap-2">
-            <span class="text-3xl font-black text-rose-400 font-mono tracking-tight">{{ store.stats?.failed || 0 }}</span>
+            <span class="text-3xl font-black text-rose-400 font-mono tracking-tight font-heading">{{ store.stats?.failed || 0 }}</span>
             <span class="text-xs font-bold text-rose-300 bg-rose-500/20 px-2 py-0.5 rounded-lg border border-rose-500/40">Critical Risk</span>
           </div>
           <p class="text-[11px] text-slate-400 font-medium mt-1.5">High risk signals flagged</p>
@@ -72,7 +72,7 @@
       <div class="glass-panel p-6 rounded-3xl space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 font-heading">
               <Activity class="w-4 h-4 text-cyan-400" />
               Verification Status Ratio Breakdown
             </h3>
@@ -125,11 +125,11 @@
         </div>
       </div>
 
-      <!-- Recent Verifications Table -->
+      <!-- Recent Verifications Table (Scrollable & Un-cramped) -->
       <div class="glass-panel rounded-3xl overflow-hidden">
         <div class="p-6 border-b border-white/10 flex items-center justify-between">
           <div>
-            <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 font-heading">
               <FileText class="w-4 h-4 text-cyan-400" />
               Recent Verification Activity
             </h3>
@@ -144,59 +144,60 @@
           </router-link>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-black/30 text-slate-400 font-bold border-b border-white/10 uppercase tracking-wider">
+        <!-- Scrollable Table Container -->
+        <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+          <table class="min-w-[900px] w-full text-left text-xs">
+            <thead class="bg-black/50 text-slate-400 font-bold border-b border-white/10 uppercase tracking-wider sticky top-0 backdrop-blur-md z-10">
               <tr>
-                <th class="px-6 py-3.5">Customer Name</th>
-                <th class="px-6 py-3.5">Status</th>
-                <th class="px-6 py-3.5">Risk Score</th>
-                <th class="px-6 py-3.5">Risk Signals</th>
-                <th class="px-6 py-3.5">Submitted</th>
-                <th class="px-6 py-3.5 text-right">Action</th>
+                <th class="px-6 py-4 w-1/5">Customer Name</th>
+                <th class="px-6 py-4 w-1/6">Status</th>
+                <th class="px-6 py-4 w-1/6">Risk Score</th>
+                <th class="px-6 py-4 w-1/4">Risk Signals</th>
+                <th class="px-6 py-4 w-1/6">Submitted</th>
+                <th class="px-6 py-4 text-right">Action</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-white/5 text-slate-200 font-medium">
               <tr
-                v-for="item in store.verifications.slice(0, 6)"
+                v-for="item in store.verifications.slice(0, 10)"
                 :key="item.id"
                 class="hover:bg-white/10 transition-colors cursor-pointer"
                 @click="openModal(item)"
               >
                 <td class="px-6 py-4">
-                  <div class="font-bold text-white">{{ item.customer?.firstName }} {{ item.customer?.lastName }}</div>
-                  <div class="text-[11px] text-slate-400 font-mono">{{ item.customer?.email }}</div>
+                  <div class="font-bold text-white text-sm">{{ item.customer?.firstName }} {{ item.customer?.lastName }}</div>
+                  <div class="text-[11px] text-slate-400 font-mono mt-0.5">{{ item.customer?.email }}</div>
                 </td>
-                <td class="px-6 py-4">
+                <td class="px-6 py-4 whitespace-nowrap">
                   <span
-                    class="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border inline-flex items-center gap-1.5"
+                    class="px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase border inline-flex items-center gap-1.5"
                     :class="getStatusBadgeClass(item.status)"
                   >
                     <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
                     {{ item.status }}
                   </span>
                 </td>
-                <td class="px-6 py-4">
-                  <span class="font-mono font-bold" :class="getRiskScoreColor(item.riskScore)">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="font-mono font-bold text-sm" :class="getRiskScoreColor(item.riskScore)">
                     {{ item.riskScore }} <span class="text-[10px] font-normal text-slate-400">/ 100</span>
                   </span>
                 </td>
                 <td class="px-6 py-4">
-                  <div v-if="item.riskSignals && item.riskSignals.length > 0" class="flex flex-wrap gap-1">
+                  <div v-if="item.riskSignals && item.riskSignals.length > 0" class="flex flex-wrap gap-1.5">
                     <span
                       v-for="sig in item.riskSignals"
                       :key="sig.id"
-                      class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold"
+                      class="px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-mono font-bold"
                     >
                       {{ sig.code }}
                     </span>
                   </div>
-                  <span v-else class="text-emerald-400 font-bold text-[11px]">Clean</span>
+                  <span v-else class="text-emerald-400 font-bold text-xs">Clean</span>
                 </td>
-                <td class="px-6 py-4 text-slate-400 font-mono">
+                <td class="px-6 py-4 text-slate-400 font-mono whitespace-nowrap">
                   {{ formatDate(item.createdAt) }}
                 </td>
-                <td class="px-6 py-4 text-right">
+                <td class="px-6 py-4 text-right whitespace-nowrap">
                   <button
                     @click.stop="openModal(item)"
                     class="btn-glass-secondary px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
