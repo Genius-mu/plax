@@ -1,5 +1,5 @@
 <template>
-  <header class="glass-panel border border-white/18 sticky top-3.5 mt-3.5 mb-2.5 mx-auto w-full h-14 z-20 px-5 flex items-center justify-between rounded-2xl shadow-xl">
+  <header class="glass-panel border border-white/18 sticky top-3 mt-3 mb-3 mx-auto w-full h-14 z-20 px-5 flex items-center justify-between rounded-2xl shadow-xl">
     <!-- Breadcrumb / Title -->
     <div class="flex items-center gap-3">
       <h2 class="text-base font-semibold text-white flex items-center gap-2 font-heading">
