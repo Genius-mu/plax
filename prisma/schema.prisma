@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  REVIEWER
+  CUSTOMER
+}
+
+enum VerificationStatus {
+  DRAFT
+  SUBMITTED
+  PROCESSING
+  APPROVED
+  REJECTED
+  MANUAL_REVIEW
+  FAILED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum DocumentType {
+  PASSPORT
+  DRIVERS_LICENSE
+  NATIONAL_ID
+  PROOF_OF_ADDRESS
+}
+
+enum SignalSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Organization {
+  id            String         @id @default(uuid())
+  name          String
+  slug          String         @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  users         User[]
+  customers     Customer[]
+  verifications Verification[]
+  auditLogs     AuditLog[]
+}
+
+model User {
+  id             String       @id @default(uuid())
+  organizationId String
+  email          String       @unique
+  passwordHash   String
+  fullName       String
+  role           Role         @default(REVIEWER)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  reviews        Verification[]
+  auditLogs      AuditLog[]
+}
+
+model Customer {
+  id             String       @id @default(uuid())
+  organizationId String
+  email          String
+  firstName      String
+  lastName       String
+  country        String
+  status         String       @default("ACTIVE")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  verifications  Verification[]
+}
+
+model Verification {
+  id              String             @id @default(uuid())
+  organizationId  String
+  customerId      String
+  reviewerId      String?
+  status          VerificationStatus @default(DRAFT)
+  riskScore       Float              @default(0.0)
+  riskLevel       RiskLevel          @default(LOW)
+  rejectionReason String?
+  submittedAt     DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  organization    Organization           @relation(fields: [organizationId], references: [id])
+  customer        Customer               @relation(fields: [customerId], references: [id])
+  reviewer        User?                  @relation(fields: [reviewerId], references: [id])
+  documents       VerificationDocument[]
+  riskSignals     RiskSignal[]
+  auditLogs       AuditLog[]
+}
+
+model VerificationDocument {
+  id             String       @id @default(uuid())
+  verificationId String
+  type           DocumentType
+  storageKey     String
+  issueCountry   String
+  documentNumber String?
+  expiryDate     DateTime?
+  ocrVerified    Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  verification   Verification @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+}
+
+model RiskSignal {
+  id             String         @id @default(uuid())
+  verificationId String
+  code           String
+  severity       SignalSeverity
+  description    String
+  createdAt      DateTime       @default(now())
+
+  verification   Verification   @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id             String       @id @default(uuid())
+  organizationId String
+  actorId        String?
+  action         String
+  targetType     String
+  targetId       String
+  payload        String?      // JSON stringified payload
+  ipAddress      String?
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  actor          User?        @relation(fields: [actorId], references: [id])
+}
