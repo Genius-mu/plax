@@ -7,43 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  REVIEWER
-  CUSTOMER
-}
-
-enum VerificationStatus {
-  DRAFT
-  SUBMITTED
-  PROCESSING
-  APPROVED
-  REJECTED
-  MANUAL_REVIEW
-  FAILED
-}
-
-enum RiskLevel {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
-
-enum DocumentType {
-  PASSPORT
-  DRIVERS_LICENSE
-  NATIONAL_ID
-  PROOF_OF_ADDRESS
-}
-
-enum SignalSeverity {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
-
 model Organization {
   id            String         @id @default(uuid())
   name          String
@@ -63,7 +26,7 @@ model User {
   email          String       @unique
   passwordHash   String
   fullName       String
-  role           Role         @default(REVIEWER)
+  role           String       @default("REVIEWER") // ADMIN, REVIEWER, CUSTOMER
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -92,9 +55,9 @@ model Verification {
   organizationId  String
   customerId      String
   reviewerId      String?
-  status          VerificationStatus @default(DRAFT)
+  status          String             @default("DRAFT") // DRAFT, SUBMITTED, PROCESSING, APPROVED, REJECTED, MANUAL_REVIEW, FAILED
   riskScore       Float              @default(0.0)
-  riskLevel       RiskLevel          @default(LOW)
+  riskLevel       String             @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
   rejectionReason String?
   submittedAt     DateTime?
   completedAt     DateTime?
@@ -106,13 +69,12 @@ model Verification {
   reviewer        User?                  @relation(fields: [reviewerId], references: [id])
   documents       VerificationDocument[]
   riskSignals     RiskSignal[]
-  auditLogs       AuditLog[]
 }
 
 model VerificationDocument {
   id             String       @id @default(uuid())
   verificationId String
-  type           DocumentType
+  type           String       // PASSPORT, DRIVERS_LICENSE, NATIONAL_ID, PROOF_OF_ADDRESS
   storageKey     String
   issueCountry   String
   documentNumber String?
@@ -124,14 +86,14 @@ model VerificationDocument {
 }
 
 model RiskSignal {
-  id             String         @id @default(uuid())
+  id             String       @id @default(uuid())
   verificationId String
   code           String
-  severity       SignalSeverity
+  severity       String       // LOW, MEDIUM, HIGH, CRITICAL
   description    String
-  createdAt      DateTime       @default(now())
+  createdAt      DateTime     @default(now())
 
-  verification   Verification   @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+  verification   Verification @relation(fields: [verificationId], references: [id], onDelete: Cascade)
 }
 
 model AuditLog {
