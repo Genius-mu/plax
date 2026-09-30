@@ -2,6 +2,7 @@ import { prisma } from '../db/prisma.js';
 import { MockVerificationProvider } from '../providers/mockProvider.js';
 import { RiskEngine } from '../engine/riskEngine.js'; // fallback handling or direct
 import { AuditService } from './auditService.js';
+import { VerificationTransitionService } from './verificationTransitionService.js';
 import { VerificationSubmissionPayload, VerificationStatus } from '../types/index.js';
 
 const mockProvider = new MockVerificationProvider();
@@ -71,91 +72,93 @@ export class VerificationService {
   }
 
   /**
-   * Async Worker Pipeline Step
+   * Async Worker Pipeline Step (Simulated pipeline transition steps)
    */
   private static async processVerificationJobAsync(verificationId: string, organizationId: string, payload: VerificationSubmissionPayload) {
-    // Set status to PROCESSING
-    await prisma.verification.update({
-      where: { id: verificationId },
-      data: { status: 'PROCESSING' },
-    });
+    try {
+      // Step A: Transition SUBMITTED -> PROCESSING
+      await VerificationTransitionService.transitionVerificationStatus(verificationId, organizationId, 'PROCESSING');
 
-    // Step A: Provider OCR & Biometric execution
-    const providerResult = await mockProvider.processVerification(payload);
+      // Step B: Transition PROCESSING -> OCR_SCANNING
+      await VerificationTransitionService.transitionVerificationStatus(verificationId, organizationId, 'OCR_SCANNING');
+      const providerResult = await mockProvider.processVerification(payload);
 
-    // Step B: Calculate Risk Engine scores
-    const evaluatedRisk = RiskEngine.evaluate(providerResult.rawSignals, providerResult.faceMatchScore, providerResult.livenessPassed);
+      // Step C: Transition OCR_SCANNING -> BIOMETRIC_MATCH
+      await VerificationTransitionService.transitionVerificationStatus(verificationId, organizationId, 'BIOMETRIC_MATCH');
 
-    // Step C: Persist Documents OCR status & Risk Signals
-    await prisma.verificationDocument.updateMany({
-      where: { verificationId },
-      data: { ocrVerified: providerResult.ocrSuccess },
-    });
+      // Step D: Transition BIOMETRIC_MATCH -> RISK_SCORING
+      await VerificationTransitionService.transitionVerificationStatus(verificationId, organizationId, 'RISK_SCORING');
 
-    if (providerResult.rawSignals.length > 0) {
-      await prisma.riskSignal.createMany({
-        data: providerResult.rawSignals.map((sig) => ({
-          verificationId,
-          code: sig.code,
-          severity: sig.severity,
-          description: sig.description,
-        })),
+      // Step E: Calculate Risk Engine scores & persist signals
+      const evaluatedRisk = RiskEngine.evaluate(providerResult.rawSignals, providerResult.faceMatchScore, providerResult.livenessPassed);
+
+      await prisma.verificationDocument.updateMany({
+        where: { verificationId },
+        data: { ocrVerified: providerResult.ocrSuccess },
       });
+
+      if (providerResult.rawSignals.length > 0) {
+        await prisma.riskSignal.createMany({
+          data: providerResult.rawSignals.map((sig) => ({
+            verificationId,
+            code: sig.code,
+            severity: sig.severity,
+            description: sig.description,
+          })),
+        });
+      }
+
+      await prisma.verification.update({
+        where: { id: verificationId },
+        data: {
+          riskScore: evaluatedRisk.riskScore,
+          riskLevel: evaluatedRisk.riskLevel,
+        },
+      });
+
+      // Step F: Transition RISK_SCORING -> Final Recommended Status (APPROVED / MANUAL_REVIEW / REJECTED)
+      const finalVerification = await VerificationTransitionService.transitionVerificationStatus(
+        verificationId,
+        organizationId,
+        evaluatedRisk.recommendedStatus,
+        {
+          metadata: {
+            riskScore: evaluatedRisk.riskScore,
+            riskLevel: evaluatedRisk.riskLevel,
+            signalsCount: providerResult.rawSignals.length,
+          },
+        }
+      );
+
+      return finalVerification;
+    } catch (err: any) {
+      console.error(`Verification worker pipeline failed for ID ${verificationId}:`, err);
+
+      // Attempt safe transition to FAILED state for technical errors if allowed
+      try {
+        await VerificationTransitionService.transitionVerificationStatus(verificationId, organizationId, 'FAILED', {
+          lastError: err.message || 'Unknown verification processing failure',
+        });
+      } catch (transitionErr) {
+        console.error(`Unable to transition verification ${verificationId} to FAILED state:`, transitionErr);
+      }
     }
-
-    // Step D: Finalize State Machine Transition
-    const finalVerification = await prisma.verification.update({
-      where: { id: verificationId },
-      data: {
-        status: evaluatedRisk.recommendedStatus,
-        riskScore: evaluatedRisk.riskScore,
-        riskLevel: evaluatedRisk.riskLevel,
-        completedAt: evaluatedRisk.recommendedStatus !== 'MANUAL_REVIEW' ? new Date() : null,
-      },
-    });
-
-    // Log Audit Event
-    await AuditService.logEvent({
-      organizationId,
-      action: `VERIFICATION_AUTO_${evaluatedRisk.recommendedStatus}`,
-      targetType: 'VERIFICATION',
-      targetId: verificationId,
-      payload: { riskScore: evaluatedRisk.riskScore, riskLevel: evaluatedRisk.riskLevel, signals: providerResult.rawSignals },
-    });
-
-    return finalVerification;
   }
 
   /**
    * Manual Reviewer Decision Transaction (Approve / Reject)
    */
   public static async makeManualDecision(verificationId: string, reviewerId: string, organizationId: string, decision: 'APPROVED' | 'REJECTED', reason?: string) {
-    // Transactionally update status & log audit event
-    return prisma.$transaction(async (tx) => {
-      const updated = await tx.verification.update({
-        where: { id: verificationId, organizationId },
-        data: {
-          status: decision,
-          reviewerId,
-          rejectionReason: reason || null,
-          completedAt: new Date(),
-        },
-      });
-
-      await tx.auditLog.create({
-        data: {
-          organizationId,
-          actorId: reviewerId,
-          action: `VERIFICATION_MANUAL_${decision}`,
-          targetType: 'VERIFICATION',
-          targetId: verificationId,
-          payload: JSON.stringify({ reviewerId, decision, reason }),
-          ipAddress: '127.0.0.1',
-        },
-      });
-
-      return updated;
-    });
+    return VerificationTransitionService.transitionVerificationStatus(
+      verificationId,
+      organizationId,
+      decision,
+      {
+        actorId: reviewerId,
+        rejectionReason: reason,
+        metadata: { source: 'MANUAL_REVIEWER_PANEL' },
+      }
+    );
   }
 
   /**

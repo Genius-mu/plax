@@ -48,27 +48,46 @@ model Customer {
 
   organization   Organization   @relation(fields: [organizationId], references: [id])
   verifications  Verification[]
+
+  @@index([organizationId])
+  @@index([organizationId, email])
 }
 
 model Verification {
-  id              String             @id @default(uuid())
-  organizationId  String
-  customerId      String
-  reviewerId      String?
-  status          String             @default("DRAFT") // DRAFT, SUBMITTED, PROCESSING, APPROVED, REJECTED, MANUAL_REVIEW, FAILED
-  riskScore       Float              @default(0.0)
-  riskLevel       String             @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
-  rejectionReason String?
-  submittedAt     DateTime?
-  completedAt     DateTime?
-  createdAt       DateTime           @default(now())
-  updatedAt       DateTime           @updatedAt
+  id                String             @id @default(uuid())
+  organizationId    String
+  customerId        String
+  reviewerId        String?
+  status            String             @default("SUBMITTED") // DRAFT, SUBMITTED, PROCESSING, OCR_SCANNING, BIOMETRIC_MATCH, RISK_SCORING, APPROVED, MANUAL_REVIEW, REJECTED, FAILED
+  riskScore         Float              @default(0.0)
+  riskLevel         String             @default("LOW") // LOW, MEDIUM, HIGH, CRITICAL
+  rejectionReason   String?
+  submittedAt       DateTime?
+  completedAt       DateTime?
 
-  organization    Organization           @relation(fields: [organizationId], references: [id])
-  customer        Customer               @relation(fields: [customerId], references: [id])
-  reviewer        User?                  @relation(fields: [reviewerId], references: [id])
-  documents       VerificationDocument[]
-  riskSignals     RiskSignal[]
+  // Retry & Job Tracking Fields
+  attemptCount      Int                @default(0)
+  lastAttemptAt     DateTime?
+  nextAttemptAt     DateTime?
+  lastError         String?
+
+  // Idempotency & Provider Reference Fields
+  idempotencyKey    String?
+  providerReference String?
+
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  organization      Organization           @relation(fields: [organizationId], references: [id])
+  customer          Customer               @relation(fields: [customerId], references: [id])
+  reviewer          User?                  @relation(fields: [reviewerId], references: [id])
+  documents         VerificationDocument[]
+  riskSignals       RiskSignal[]
+
+  @@index([organizationId])
+  @@index([organizationId, status])
+  @@index([organizationId, createdAt])
+  @@index([organizationId, idempotencyKey])
 }
 
 model VerificationDocument {
@@ -83,6 +102,8 @@ model VerificationDocument {
   createdAt      DateTime     @default(now())
 
   verification   Verification @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+
+  @@index([verificationId])
 }
 
 model RiskSignal {
@@ -94,6 +115,8 @@ model RiskSignal {
   createdAt      DateTime     @default(now())
 
   verification   Verification @relation(fields: [verificationId], references: [id], onDelete: Cascade)
+
+  @@index([verificationId])
 }
 
 model AuditLog {
@@ -109,4 +132,7 @@ model AuditLog {
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   actor          User?        @relation(fields: [actorId], references: [id])
+
+  @@index([organizationId])
+  @@index([organizationId, createdAt])
 }
