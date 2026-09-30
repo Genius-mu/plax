@@ -1,12 +1,12 @@
 <template>
-  <header class="h-16 border-b border-slate-200/70 bg-white/60 backdrop-blur-xl sticky top-0 z-30 px-6 flex items-center justify-between shadow-xs">
+  <header class="h-16 border-b border-white/10 bg-slate-950/40 backdrop-blur-2xl sticky top-0 z-30 px-6 flex items-center justify-between">
     <!-- Breadcrumb / Title -->
     <div class="flex items-center gap-3">
-      <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+      <h2 class="text-base font-black text-white flex items-center gap-2">
         {{ pageTitle }}
       </h2>
-      <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono flex items-center gap-1.5">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
         SANDBOX ACTIVE
       </span>
     </div>
@@ -21,14 +21,14 @@
           @keyup.enter="handleSearch"
           type="text"
           placeholder="Search customer or verification ID..."
-          class="w-64 glass-input rounded-xl pl-9 pr-4 py-1.5 text-xs text-slate-900 placeholder-slate-400 font-medium"
+          class="w-64 glass-input rounded-2xl pl-9 pr-4 py-1.5 text-xs text-white placeholder-slate-400 font-medium"
         />
       </div>
 
       <!-- Quick Role Info -->
-      <div class="hidden md:flex items-center gap-2 text-xs text-slate-600 bg-white/80 border border-slate-200/80 px-3.5 py-1.5 rounded-xl shadow-2xs font-medium">
-        <Shield class="w-3.5 h-3.5 text-slate-700" />
-        <span>Org: <strong class="text-slate-900 font-bold">Plax Global Compliance</strong></span>
+      <div class="hidden md:flex items-center gap-2 text-xs text-slate-300 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-2xl font-medium">
+        <Shield class="w-3.5 h-3.5 text-blue-400" />
+        <span>Org: <strong class="text-white font-bold">Plax Global Compliance</strong></span>
       </div>
     </div>
   </header>
