@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen bg-[#070a12] text-slate-100 font-sans antialiased">
+  <div class="flex min-h-screen text-slate-900 font-sans antialiased">
     <!-- Sidebar -->
     <Sidebar />
 

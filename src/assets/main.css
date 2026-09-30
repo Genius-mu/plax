@@ -2,108 +2,137 @@
 
 @layer base {
   :root {
-    --bg-primary: #070a12;
-    --bg-secondary: #0d1322;
-    --bg-card: rgba(17, 24, 39, 0.7);
-    --border-color: rgba(255, 255, 255, 0.08);
-    --accent-emerald: #10b981;
-    --accent-violet: #8b5cf6;
-    --text-primary: #f3f4f6;
-    --text-muted: #9ca3af;
+    --bg-primary: #f0f4f9;
+    --bg-secondary: #e2e8f0;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --glass-bg: rgba(255, 255, 255, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.8);
+    --glass-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.07);
   }
 
   body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
+    background-color: #f1f5f9;
+    background-image: 
+      radial-gradient(at 15% 15%, rgba(219, 234, 254, 0.8) 0px, transparent 50%),
+      radial-gradient(at 85% 85%, rgba(224, 231, 255, 0.8) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, rgba(241, 245, 249, 1) 0px, transparent 100%);
+    background-attachment: fixed;
+    color: #0f172a;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     min-height: 100vh;
-    overflow-x: hidden;
   }
 }
 
-/* Glassmorphism Card Utility */
+/* Watery Liquid Glass Panel */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 10px 30px -5px rgba(15, 23, 42, 0.05),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 1);
+  border-radius: 20px;
 }
 
 .glass-panel-hover {
-  transition: all 0.25s ease-in-out;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-panel-hover:hover {
-  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(255, 255, 255, 1);
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px 0 rgba(16, 185, 129, 0.1);
+  box-shadow: 
+    0 16px 36px -6px rgba(15, 23, 42, 0.08),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 1);
 }
 
-/* Status Badges */
+/* Liquid Glass Buttons - No Gradients */
+.btn-glass-primary {
+  background: #0f172a;
+  color: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.9);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-glass-primary:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
+}
+
+.btn-glass-secondary {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  color: #334155;
+  border: 1px solid rgba(203, 213, 225, 0.8);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-glass-secondary:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+/* Watery Input Fields */
+.glass-input {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(203, 213, 225, 0.7);
+  color: #0f172a;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease-in-out;
+}
+
+.glass-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Status Badges - Light Translucent Glass */
 .badge-approved {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(220, 252, 231, 0.75);
+  color: #15803d;
+  border: 1px solid rgba(134, 239, 172, 0.8);
 }
 
 .badge-pending {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(254, 243, 199, 0.75);
+  color: #b45309;
+  border: 1px solid rgba(253, 230, 138, 0.8);
 }
 
 .badge-rejected {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(254, 226, 226, 0.75);
+  color: #b91c1c;
+  border: 1px solid rgba(254, 202, 202, 0.8);
 }
 
 .badge-manual {
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: rgba(243, 232, 255, 0.75);
+  color: #6b21a8;
+  border: 1px solid rgba(216, 180, 254, 0.8);
 }
 
-/* Pulsing Status Dot */
-.status-dot-pulse {
-  position: relative;
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.status-dot-pulse::after {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 50%;
-  border: 2px solid currentColor;
-  animation: pulse 1.8s cubic-bezier(0.24, 0, 0.38, 1) infinite;
-  opacity: 0.6;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(2.4); opacity: 0; }
-}
-
-/* Custom Scrollbar */
+/* Custom Soft Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #070a12;
+  background: rgba(241, 245, 249, 0.5);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f293d;
+  background: rgba(203, 213, 225, 0.8);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: rgba(148, 163, 184, 0.9);
 }
