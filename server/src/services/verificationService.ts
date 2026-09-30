@@ -217,7 +217,6 @@ export class VerificationService {
         reviewer: { select: { id: true, fullName: true, email: true } },
         documents: true,
         riskSignals: true,
-        auditLogs: { orderBy: { createdAt: 'desc' } },
       },
     });
   }

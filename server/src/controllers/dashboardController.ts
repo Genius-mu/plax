@@ -1,10 +1,10 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware.js';
-import { prisma } from '../db/prisma.js';
+import { prisma, getDefaultOrganizationId } from '../db/prisma.js';
 
 export async function getDashboardStatsController(req: AuthenticatedRequest, res: Response) {
   try {
-    const orgId = req.user?.organizationId || 'plax-default-org';
+    const orgId = await getDefaultOrganizationId(req.user?.organizationId);
 
     const [total, approved, pending, failed, manualReview, totalCustomers] = await Promise.all([
       prisma.verification.count({ where: { organizationId: orgId } }),

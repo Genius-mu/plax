@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware.js';
 import { VerificationService } from '../services/verificationService.js';
+import { getDefaultOrganizationId } from '../db/prisma.js';
 import { z } from 'zod';
 
 const createVerificationSchema = z.object({
@@ -26,7 +27,7 @@ const manualDecisionSchema = z.object({
 export async function createVerificationController(req: AuthenticatedRequest, res: Response) {
   try {
     const data = createVerificationSchema.parse(req.body);
-    const orgId = req.user?.organizationId || 'plax-default-org';
+    const orgId = await getDefaultOrganizationId(req.user?.organizationId);
     const result = await VerificationService.createAndProcessVerification(orgId, data as any);
     
     res.status(202).json({
@@ -46,7 +47,7 @@ export async function createVerificationController(req: AuthenticatedRequest, re
 
 export async function listVerificationsController(req: AuthenticatedRequest, res: Response) {
   try {
-    const orgId = req.user?.organizationId || 'plax-default-org';
+    const orgId = await getDefaultOrganizationId(req.user?.organizationId);
     const query = {
       status: req.query.status as any,
       search: req.query.search as string,
@@ -62,7 +63,7 @@ export async function listVerificationsController(req: AuthenticatedRequest, res
 
 export async function getVerificationByIdController(req: AuthenticatedRequest, res: Response) {
   try {
-    const orgId = req.user?.organizationId || 'plax-default-org';
+    const orgId = await getDefaultOrganizationId(req.user?.organizationId);
     const verification = await VerificationService.getVerificationById(req.params.id, orgId);
     if (!verification) {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Verification record not found.' } });
@@ -76,7 +77,7 @@ export async function getVerificationByIdController(req: AuthenticatedRequest, r
 export async function makeDecisionController(req: AuthenticatedRequest, res: Response) {
   try {
     const data = manualDecisionSchema.parse(req.body);
-    const orgId = req.user?.organizationId || 'plax-default-org';
+    const orgId = await getDefaultOrganizationId(req.user?.organizationId);
     const reviewerId = req.user?.userId || 'system-reviewer';
     
     const updated = await VerificationService.makeManualDecision(
